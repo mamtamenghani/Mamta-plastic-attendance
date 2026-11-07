@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="theme-color" content="#1a3c8f">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>MAMTA PLASTICS</title>
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#f1f4fa;color:#1c2333;padding-bottom:20px}
+  header{background:#1a3c8f;color:#fff;text-align:center;padding:14px 10px 12px;position:sticky;top:0;z-index:5}
+  header h1{margin:0;font-size:26px;letter-spacing:2px}
+  #clock{font-size:14px;opacity:.9;margin-top:4px}
+  main{padding:12px;max-width:720px;margin:auto}
+  .card{background:#fff;border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+  .emp{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .nm{font-size:20px;font-weight:700}
+  .sub{font-size:14px;color:#566;margin-top:3px}
+  .btn{border:0;border-radius:12px;color:#fff;font-weight:700;font-size:16px;min-height:50px;padding:0 18px;cursor:pointer}
+  .g{background:#1e9e4a}.r{background:#d63b3b}.b{background:#1a3c8f}.o{background:#e08a00}.gr{background:#7b8494}
+  .btn.s{min-height:38px;font-size:13px;padding:0 12px}
+  .done{color:#1e7e3c;font-weight:700;text-align:right;font-size:14px}
+  .tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+  .tile{background:#fff;border-radius:14px;padding:14px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+  .tile b{display:block;font-size:30px}.tile span{font-size:13px;color:#566}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{padding:8px 6px;border-bottom:1px solid #e6e9f0;text-align:left}
+  th{background:#e8eefb;font-size:13px}
+  .wrap{overflow-x:auto}
+  .st-P{color:#1e7e3c;font-weight:700}.st-H,.st-NC{color:#c27400;font-weight:700}.st-A{color:#d63b3b;font-weight:700}.st-OFF,.st-FUT{color:#999}.st-WIP{color:#1a3c8f;font-weight:700}
+  input,select{width:100%;font-size:16px;padding:12px;border:1px solid #c9d0de;border-radius:10px;background:#fff;margin-bottom:8px}
+  label{font-size:13px;color:#566;display:block;margin:4px 0 2px}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+  .chip{background:#e8eefb;border-radius:20px;padding:5px 11px;font-size:13px;font-weight:600}
+  .row{display:flex;gap:8px}.row>*{flex:1}
+  nav{display:flex;gap:4px;margin:10px auto 0;padding:0 4px;max-width:720px}
+  nav button{flex:1;min-width:0;border:0;border-radius:10px;background:rgba(255,255,255,.15);color:#fff;padding:9px 2px 8px;font-size:14px;font-weight:800;cursor:pointer}
+  nav button i{display:block;font-style:normal;font-size:22px;margin-bottom:2px}
+  nav button.on{background:#fff;color:#1a3c8f}
+  @media(min-width:600px){nav button{font-size:19px;padding:12px 4px}nav button i{font-size:26px}}
+  #toast{position:fixed;left:12px;right:12px;bottom:20px;padding:14px;border-radius:12px;color:#fff;text-align:center;font-weight:600;z-index:40;display:none}
+  #busy{position:fixed;inset:0;background:rgba(255,255,255,.55);z-index:30;display:none;align-items:center;justify-content:center;font-weight:700}
+  #modal,#pmodal{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:25;display:none;align-items:center;justify-content:center;padding:14px}
+  #modal .box,#pmodal .box{background:#fff;border-radius:14px;padding:16px;width:100%;max-width:420px}
+  .phs{display:flex;gap:10px;margin-top:8px}
+  .phw{text-align:center;cursor:pointer;font-size:11px;color:#566}
+  .th{display:block;width:58px;height:58px;border-radius:10px;object-fit:cover;background:#dde3f0;border:2px solid #cfd7ea}
+  #pImg{width:100%;max-height:60vh;object-fit:contain;border-radius:10px;background:#111;margin:10px 0}
+  #cam{position:fixed;inset:0;background:#000;z-index:50;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:14px}
+  #camVid{width:min(92vw,480px);aspect-ratio:1;object-fit:cover;border-radius:14px;transform:scaleX(-1);background:#222}
+  #camCount{color:#fff;font-size:64px;font-weight:800;min-height:76px}
+  #camTip{color:#fff;font-size:16px}
+  .tab{display:none}.tab.on{display:block}
+  .muted{color:#778;font-size:13px;text-align:center;padding:14px}
+</style>
+</head>
+<body>
+<header>
+  <h1>MAMTA PLASTICS</h1>
+  <div id="clock"></div>
+  <nav>
+    <button data-tab="home" class="on"><i>✔</i>Attendance</button>
+    <button data-tab="dash"><i>📊</i>Today</button>
+    <button data-tab="cal"><i>📅</i>Calendar</button>
+    <button data-tab="rep"><i>📄</i>Report</button>
+    <button data-tab="emp"><i>👥</i>Employees</button>
+  </nav>
+</header>
+
+<main>
+  <!-- 1. ATTENDANCE -->
+  <section id="t-home" class="tab on"><div id="homeList"></div></section>
+
+  <!-- 2. DASHBOARD -->
+  <section id="t-dash" class="tab">
+    <div id="dashTiles" class="tiles"></div>
+    <div class="card wrap"><table><thead><tr><th>Employee</th><th>In</th><th>Out</th><th>Status</th></tr></thead><tbody id="dashBody"></tbody></table></div>
+  </section>
+
+  <!-- 3. CALENDAR -->
+  <section id="t-cal" class="tab">
+    <div class="card">
+      <label>Employee</label><select id="calEmp"></select>
+      <label>Month</label><input type="month" id="calMonth">
+      <div id="calSum" class="chips"></div>
+      <div class="row">
+        <button class="btn b s" data-act="addrec">+ Add / Correct day</button>
+        <button class="btn gr s" data-act="dl" data-fmt="xlsx" data-scope="emp">Excel</button>
+        <button class="btn gr s" data-act="dl" data-fmt="pdf" data-scope="emp">PDF</button>
+      </div>
+    </div>
+    <div class="card wrap"><table><thead><tr><th>Date</th><th>Status</th><th>In</th><th>Out</th><th>Hrs</th></tr></thead><tbody id="calBody"></tbody></table>
+      <div class="muted">Tap a day to correct it.</div></div>
+  </section>
+
+  <!-- 4. REPORT -->
+  <section id="t-rep" class="tab">
+    <div class="card">
+      <label>Month</label><input type="month" id="repMonth">
+      <div class="row">
+        <button class="btn g s" data-act="dl" data-fmt="xlsx" data-scope="all">Download Excel</button>
+        <button class="btn r s" data-act="dl" data-fmt="pdf" data-scope="all">Download PDF</button>
+      </div>
+      <div class="muted" id="repNote"></div>
+    </div>
+    <div class="card wrap"><table><thead><tr><th>Employee</th><th>Work days</th><th>P</th><th>Half</th><th>A</th><th>Hrs</th><th>Late</th></tr></thead><tbody id="repBody"></tbody></table></div>
+  </section>
+
+  <!-- 5. EMPLOYEES -->
+  <section id="t-emp" class="tab">
+    <div class="card"><label>Add new employee</label>
+      <input id="newName" maxlength="40" placeholder="Employee name">
+      <input id="newPhone" type="tel" inputmode="numeric" maxlength="14" placeholder="Mobile number (10 digits, optional)">
+      <button class="btn g" style="width:100%" data-act="addemp">Add Employee</button></div>
+    <div id="empList"></div>
+    <div class="card"><b>Settings</b>
+      <label>Work start time (for late arrivals – leave empty to turn off)</label><input type="time" id="setStart">
+      <label>Hours for a full day (less = half day)</label><input type="number" id="setFull" min="1" max="24" step="0.5">
+      <label>Weekly off</label><select id="setOff"><option value="0">Sunday</option><option value="1">Monday</option><option value="2">Tuesday</option><option value="3">Wednesday</option><option value="4">Thursday</option><option value="5">Friday</option><option value="6">Saturday</option><option value="-1">None</option></select>
+      <button class="btn b" style="width:100%" data-act="savesettings">Save settings</button></div>
+  </section>
+</main>
+
+<div id="pmodal"><div class="box">
+  <b id="pTitle"></b>
+  <img id="pImg" alt="photo">
+  <div class="row"><button class="btn gr" id="pCancel" data-act="pcancel">Cancel</button><button class="btn g" id="pOk" data-act="pok">CONFIRM</button></div>
+</div></div>
+<div id="cam"><div id="camTip">Look at the camera – photo is taken automatically</div><video id="camVid" playsinline muted autoplay></video><div id="camCount"></div><button class="btn gr" data-act="camcancel">Cancel</button></div>
+<div id="toast"></div>
+<div id="busy">Please wait…</div>
+<div id="modal"><div class="box">
+  <b id="mTitle">Add / Correct attendance</b>
+  <label>Date</label><input type="date" id="mDate">
+  <label>Check-in time</label><input type="time" id="mIn">
+  <label>Check-out time (empty if still working)</label><input type="time" id="mOut">
+  <div class="row"><button class="btn gr" data-act="mclose">Cancel</button><button class="btn g" data-act="msave">Save</button></div>
+</div></div>
+
+<script>
+/* ============ helpers ============ */
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const DAYN = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const STXT = {P:'Present',H:'Half day',A:'Absent',OFF:'Off',FUT:'',TODAY:'–',WIP:'Working',NC:'No check-out'};
+const S = { home:null, emps:[], settings:null, today:'', editEmp:'', thumbs:{}, pending:null };
+const BLANK = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+let busy = false, toastT;
+
+// short device code (only used to label the activity log)
+const device = (() => { try { let d = localStorage.getItem('dev'); if (!d) { d = Math.random().toString(36).slice(2,10); localStorage.setItem('dev', d); } return d; } catch (e) { return ''; } })();
+
+function t12(t){ if(!t) return '–'; const p=String(t).split(':').map(Number), h=p[0]; return String(h%12||12).padStart(2,'0')+':'+String(p[1]).padStart(2,'0')+' '+(h<12?'AM':'PM'); }
+function d8(ds){ return ds.slice(8,10)+'/'+ds.slice(5,7)+'/'+ds.slice(0,4); }
+
+function toast(msg, ok){
+  const t=$('toast'); t.textContent=(ok?'✔ ':'✖ ')+msg; t.style.background=ok?'#1e9e4a':'#d63b3b'; t.style.display='block';
+  clearTimeout(toastT); toastT=setTimeout(()=>t.style.display='none', ok?2500:4500);
+}
+/** Calls the server; always resolves with {ok,message,data} (never rejects). */
+/** Link of the Apps Script backend (/exec). Needed only when this page is hosted outside Apps Script. */
+function apiUrl(){
+  let u = ''; try { u = localStorage.getItem('apiUrl') || ''; } catch(e){}
+  const ok = x => /^https:\/\/script\.google\.com\/(a\/macros\/[^\/]+\/|macros\/)s\/[\w-]+\/exec$/.test(x);
+  if (!ok(u)){
+    u = (prompt('Paste your Apps Script web app link (it ends with /exec):') || '').trim();
+    if (!ok(u)) return '';
+    try { localStorage.setItem('apiUrl', u); } catch(e){}
+  }
+  return u;
+}
+/** Calls the server; always resolves with {ok,message,data} (never rejects). */
+function call(action, payload){
+  if (window.google && google.script && google.script.run){            // opened inside Apps Script
+    return new Promise(res => {
+      try {
+        google.script.run
+          .withSuccessHandler(r => res(r || {ok:false,message:'No response from server.'}))
+          .withFailureHandler(() => res({ok:false,message:'Connection problem. Check internet and try again.'}))
+          .api(action, payload || {}, {device: device});
+      } catch (e) { res({ok:false,message:'Could not reach server.'}); }
+    });
+  }
+  const url = apiUrl();                                                // hosted page
+  if (!url) return Promise.resolve({ok:false,message:'Server link missing. Reload and paste the /exec link.'});
+  return fetch(url, {method:'POST', body:JSON.stringify({action:action, p:payload||{}, ctx:{device:device}})})
+    .then(r => r.json())
+    .catch(() => ({ok:false,message:'Connection problem. Check internet and try again.'}));
+}
+/** Runs an action with a busy screen (blocks double taps) and shows a success/failure message. */
+async function run(action, payload, silentOk){
+  if (busy) return null;
+  busy = true; $('busy').style.display='flex';
+  const r = await call(action, payload);
+  busy = false; $('busy').style.display='none';
+  if (!silentOk || !r.ok) toast(r.message || (r.ok?'Done.':'Failed.'), r.ok);
+  return r;
+}
+
+/* ============ clock ============ */
+setInterval(() => { $('clock').textContent = new Date().toLocaleString('en-IN',{timeZone:'Asia/Kolkata',weekday:'short',day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true}); }, 1000);
+
+/* ============ tabs ============ */
+function show(tab){
+  document.querySelectorAll('.tab').forEach(e => e.classList.remove('on')); $('t-'+tab).classList.add('on');
+  document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.tab===tab));
+  window.scrollTo(0,0);
+  if (tab==='home'||tab==='dash') loadHome();
+  if (tab==='cal') loadCalendarSetup();
+  if (tab==='rep') loadReport();
+  if (tab==='emp') loadEmployees();
+}
+
+/* ============ attendance + dashboard ============ */
+async function loadHome(){
+  const r = await run('home', {}, true); if (!r || !r.ok) return;
+  S.home = r.data; S.today = r.data.today; renderHome(); loadThumbs();
+}
+function renderHome(){
+  const list = S.home.list.filter(e => e.active);
+  $('homeList').innerHTML = list.length ? list.map(e => {
+    let sub, btn;
+    if (e.state==='none'){ sub='Not checked in'; btn='<button class="btn g" data-act="cin" data-id="'+esc(e.id)+'">📷 CHECK IN</button>'; }
+    else if (e.state==='in'){ sub='In at '+t12(e.in); btn='<button class="btn r" data-act="cout" data-id="'+esc(e.id)+'">📷 CHECK OUT</button>'; }
+    else { sub='In '+t12(e.in)+' • Out '+t12(e.out); btn='<div class="done">✔ Completed<br>'+esc(e.hours)+' hrs</div>'; }
+    const ph = (e.inPhoto||e.outPhoto) ? '<div class="phs">'+(e.inPhoto?thumbHtml(e.inPhoto,'IN'):'')+(e.outPhoto?thumbHtml(e.outPhoto,'OUT'):'')+'</div>' : '';
+    return '<div class="card emp"><div><div class="nm">'+esc(e.name)+'</div><div class="sub">'+sub+'</div>'+ph+'</div>'+btn+'</div>';
+  }).join('') : '<div class="muted">No active employees. Open the Employees tab to add some.</div>';
+
+  const d = S.home.dash;
+  $('dashTiles').innerHTML = [['Total',d.total],['Present',d.present],['Absent',d.absent],['Checked in now',d.checkedIn],['Checked out',d.checkedOut]]
+    .map(x => '<div class="tile"><b>'+x[1]+'</b><span>'+x[0]+'</span></div>').join('');
+  $('dashBody').innerHTML = list.map(e => '<tr><td>'+esc(e.name)+'</td><td>'+t12(e.in)+'</td><td>'+t12(e.out)+'</td><td>'+
+    (e.state==='none'?'<span class="st-A">Absent</span>':e.state==='in'?'<span class="st-WIP">In</span>':'<span class="st-P">Done</span>')+'</td></tr>').join('');
+}
+
+/* ============ employees ============ */
+async function loadEmployees(){
+  const r = await run('employees', {}, true); if (!r || !r.ok) return;
+  S.emps = r.data.list; S.settings = r.data.settings;
+  $('empList').innerHTML = S.emps.filter(e => !e.removed).map(e =>
+    '<div class="card"><div class="nm">'+esc(e.name)+' <small style="color:'+(e.active?'#1e7e3c':'#d63b3b')+'">'+(e.active?'Active':'Inactive')+'</small></div>'+
+    '<div class="sub">'+(e.phone?'📞 <a href="tel:'+esc(e.phone)+'">'+esc(e.phone)+'</a>':'No phone number')+'</div>'+
+    '<div class="row" style="margin-top:8px"><button class="btn b s" data-act="editemp" data-id="'+esc(e.id)+'" data-name="'+esc(e.name)+'" data-phone="'+esc(e.phone)+'">Edit</button>'+
+    '<button class="btn o s" data-act="toggle" data-id="'+esc(e.id)+'" data-on="'+(e.active?'0':'1')+'">'+(e.active?'Deactivate':'Activate')+'</button>'+
+    '<button class="btn r s" data-act="delemp" data-id="'+esc(e.id)+'" data-name="'+esc(e.name)+'">Delete</button></div></div>').join('') || '<div class="muted">No employees yet.</div>';
+  $('setStart').value = S.settings.workStart; $('setFull').value = S.settings.fullHours; $('setOff').value = String(S.settings.weeklyOff);
+}
+
+/* ============ calendar ============ */
+const curMonth = () => (S.today || new Date().toISOString().slice(0,10)).slice(0,7);
+async function loadCalendarSetup(){
+  const r = await run('employees', {}, true); if (!r || !r.ok) return;
+  S.emps = r.data.list;
+  const keep = $('calEmp').value;
+  $('calEmp').innerHTML = S.emps.map(e => '<option value="'+esc(e.id)+'">'+esc(e.name)+(e.removed?' (removed)':'')+'</option>').join('');
+  if (keep) $('calEmp').value = keep;
+  if (!$('calMonth').value) $('calMonth').value = curMonth();
+  loadMonth();
+}
+async function loadMonth(){
+  if (!$('calEmp').value || !$('calMonth').value){ $('calBody').innerHTML=''; $('calSum').innerHTML=''; return; }
+  const r = await run('month', {empId:$('calEmp').value, month:$('calMonth').value}, true); if (!r || !r.ok) return;
+  const s = r.data.summary;
+  $('calSum').innerHTML = [['Present',s.present],['Half',s.half],['Absent',s.absent],['Work days',s.workingDays],['Hours',s.hours],['Late',s.late]]
+    .map(x => '<span class="chip">'+x[0]+': '+x[1]+'</span>').join('');
+  $('calBody').innerHTML = r.data.days.map(d => {
+    const tap = d.status!=='FUT' ? ' data-act="editday" data-date="'+d.date+'" data-in="'+esc((d.in||'').slice(0,5))+'" data-out="'+esc((d.out||'').slice(0,5))+'" style="cursor:pointer"' : '';
+    return '<tr'+tap+'><td>'+d.date.slice(8)+' '+DAYN[d.dow]+'</td><td class="st-'+d.status+'">'+STXT[d.status]+(d.late?' ⏰':'')+'</td><td>'+t12(d.in)+'</td><td>'+t12(d.out)+'</td><td>'+(d.hours===''?'–':d.hours)+'</td></tr>';
+  }).join('');
+}
+
+/* ============ report ============ */
+async function loadReport(){
+  if (!$('repMonth').value) $('repMonth').value = curMonth();
+  const r = await run('report', {month:$('repMonth').value}, true); if (!r || !r.ok) return;
+  $('repBody').innerHTML = r.data.rows.map(x => '<tr><td>'+esc(x.name)+'</td><td>'+x.workingDays+'</td><td>'+x.present+'</td><td>'+x.half+'</td><td>'+x.absent+'</td><td>'+x.hours+'</td><td>'+x.late+'</td></tr>').join('') || '<tr><td colspan="7" class="muted">No data</td></tr>';
+  const s = r.data.settings;
+  $('repNote').textContent = 'Full day = '+s.fullHours+' hrs or more. '+(s.workStart?'Late = after '+t12(s.workStart+':00')+'.':'Late arrivals off (set start time in Employees tab).');
+}
+async function download(fmt, scope){
+  const month = scope==='emp' ? $('calMonth').value : $('repMonth').value;
+  const empId = scope==='emp' ? $('calEmp').value : '';
+  if (!month || (scope==='emp' && !empId)) return toast('Select employee and month first.', false);
+  const r = await run('exportFile', {month:month, format:fmt, empId:empId}); if (!r || !r.ok) return;
+  try {
+    const bin = atob(r.data.b64), arr = new Uint8Array(bin.length);
+    for (let i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([arr],{type:r.data.mime}));
+    a.download = r.data.name; document.body.appendChild(a); a.click(); a.remove();
+  } catch (e) { toast('File ready but could not be saved on this device.', false); }
+}
+
+/* ============ correction dialog ============ */
+function openModal(date, tin, tout){
+  $('mDate').max = S.today; $('mDate').value = date || ''; $('mIn').value = tin || ''; $('mOut').value = tout || '';
+  $('modal').style.display='flex';
+}
+
+/* ============ photos ============ */
+function thumbHtml(id, label){
+  return '<span class="phw" data-act="vphoto" data-pid="'+esc(id)+'"><img class="th" data-pid="'+esc(id)+'" src="'+(S.thumbs[id]||BLANK)+'" alt=""><small>'+label+'</small></span>';
+}
+function applyThumbs(){ document.querySelectorAll('img[data-pid]').forEach(i => { const t=S.thumbs[i.dataset.pid]; if (t) i.src=t; }); }
+async function loadThumbs(){
+  const need = [];
+  S.home.list.forEach(e => [e.inPhoto,e.outPhoto].forEach(id => { if (id && !S.thumbs[id] && need.indexOf(id)<0) need.push(id); }));
+  if (need.length){ const r = await call('photos', {ids:need}); if (r.ok && r.data) Object.assign(S.thumbs, r.data); }
+  applyThumbs();
+}
+/** Resize a camera picture to a small JPEG (saves data + Drive space). */
+function shrink(file){
+  return new Promise((res, rej) => {
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      try {
+        const mk = max => { const k=Math.min(1, max/Math.max(img.width,img.height)), c=document.createElement('canvas');
+          c.width=Math.round(img.width*k); c.height=Math.round(img.height*k); c.getContext('2d').drawImage(img,0,0,c.width,c.height); return c.toDataURL('image/jpeg', max>200?0.65:0.6); };
+        const out = {photo:mk(560), thumb:mk(110)}; URL.revokeObjectURL(url); res(out);
+      } catch(e){ rej(e); }
+    };
+    img.onerror = () => rej(new Error('bad image'));
+    img.src = url;
+  });
+}
+/** Opens the phone camera (front camera). Resolves null if cancelled. */
+function takePhoto(){
+  return new Promise(res => {
+    const i = document.createElement('input');
+    i.type='file'; i.accept='image/*'; i.setAttribute('capture','user'); i.style.display='none'; document.body.appendChild(i);
+    i.addEventListener('change', async () => { const f=i.files&&i.files[0]; i.remove(); if(!f) return res(null); try{ res(await shrink(f)); }catch(e){ toast('Could not read the photo. Try again.', false); res(null); } });
+    i.addEventListener('cancel', () => { i.remove(); res(null); });
+    i.click();
+  });
+}
+let camAbort = null, camWhy = '';
+/** In-app camera: shows live preview, counts 3-2-1 and takes the picture by itself.
+ *  Returns {photo,thumb}, null if cancelled, or undefined if the camera cannot be used here. */
+async function liveCapture(){
+  if (!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) { camWhy = 'camera blocked in this page'; return undefined; }
+  let stream;
+  try { stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}, audio:false}); } catch(e){ camWhy = (e && e.name) || 'error'; return undefined; }
+  const v = $('camVid'), box = $('cam'); let cancelled = false;
+  camAbort = () => { cancelled = true; };
+  const stop = () => { try{ stream.getTracks().forEach(t => t.stop()); }catch(e){} v.srcObject = null; box.style.display = 'none'; $('camCount').textContent=''; camAbort = null; };
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  try {
+    v.srcObject = stream; box.style.display = 'flex'; await v.play();
+    let g = 0; while (v.videoWidth < 2 && g++ < 40) await wait(100);
+    if (v.videoWidth < 2) throw new Error('camera not ready');
+    for (let n=3; n>=1 && !cancelled; n--){ $('camCount').textContent = n; await wait(700); }
+    if (cancelled){ stop(); return null; }
+    const mk = max => { const k=Math.min(1, max/Math.max(v.videoWidth,v.videoHeight)), c=document.createElement('canvas');
+      c.width=Math.round(v.videoWidth*k); c.height=Math.round(v.videoHeight*k); c.getContext('2d').drawImage(v,0,0,c.width,c.height); return c.toDataURL('image/jpeg', max>200?0.65:0.6); };
+    const out = {photo:mk(560), thumb:mk(110)}; stop(); return out;
+  } catch(e){ camWhy = (e && e.name) || 'error'; stop(); return undefined; }
+}
+async function startCapture(kind, id){
+  const e = S.home.list.find(x => x.id===id); if (!e) return;
+  let img = await liveCapture();                            // in-app camera, auto photo
+  if (img === undefined){ toast('Auto camera not available ('+camWhy+'). Using phone camera.', false); img = await takePhoto(); }           // fallback: phone camera app
+  if (!img) return;                                         // cancelled = nothing happens
+  // photo taken -> save attendance straight away (no confirmation step)
+  const r = await run(kind==='cin' ? 'checkIn' : 'checkOut', {empId:id, photo:img.photo, thumb:img.thumb});
+  if (r) loadHome();
+}
+async function viewPhoto(id){
+  const r = await run('photo', {id:id}, true); if (!r || !r.ok) return;
+  S.pending = null; $('pTitle').textContent = 'Photo'; $('pImg').src = r.data;
+  $('pOk').style.display = 'none'; $('pCancel').textContent = 'Close'; $('pmodal').style.display = 'flex';
+}
+
+/* ============ one click handler for everything ============ */
+document.addEventListener('click', async ev => {
+  const b = ev.target.closest('[data-act]'); const tb = ev.target.closest('nav button');
+  if (tb) return show(tb.dataset.tab);
+  if (!b) return;
+  const a = b.dataset.act, id = b.dataset.id, name = b.dataset.name;
+  let r;
+  if (a==='cin' || a==='cout'){ startCapture(a, id); }
+  else if (a==='pok'){ const q=S.pending; if(!q) return; r=await run(q.kind==='cin'?'checkIn':'checkOut',{empId:q.id,photo:q.img.photo,thumb:q.img.thumb}); if(r&&r.ok){ S.pending=null; $('pmodal').style.display='none'; } if(r) loadHome(); }
+  else if (a==='camcancel'){ if (camAbort) camAbort(); }
+  else if (a==='pcancel'){ S.pending=null; $('pmodal').style.display='none'; }
+  else if (a==='vphoto'){ viewPhoto(b.dataset.pid); }
+  else if (a==='addemp'){ r=await run('addEmployee',{name:$('newName').value,phone:$('newPhone').value}); if(r&&r.ok){ $('newName').value=''; $('newPhone').value=''; } if(r) loadEmployees(); }
+  else if (a==='editemp'){ const n=prompt('Employee name:', name); if(n===null) return; const ph=prompt('Mobile number (10 digits, empty = none):', b.dataset.phone||''); if(ph===null) return; r=await run('editEmployee',{empId:id,name:n,phone:ph}); if(r) loadEmployees(); }
+  else if (a==='toggle'){ r=await run('setActive',{empId:id,active:b.dataset.on==='1'}); if(r) loadEmployees(); }
+  else if (a==='delemp'){ if(confirm('Delete '+name+'?\nTheir past attendance will stay saved.')){ r=await run('delEmployee',{empId:id}); if(r) loadEmployees(); } }
+  else if (a==='savesettings'){ r=await run('saveSettings',{workStart:$('setStart').value,fullHours:$('setFull').value,weeklyOff:$('setOff').value}); if(r) loadEmployees(); }
+  else if (a==='addrec'){ if(!$('calEmp').value) return toast('Select an employee first.', false); openModal('', '', ''); }
+  else if (a==='editday'){ openModal(b.dataset.date, b.dataset.in, b.dataset.out); }
+  else if (a==='mclose'){ $('modal').style.display='none'; }
+  else if (a==='msave'){
+    r = await run('saveRecord',{empId:$('calEmp').value,date:$('mDate').value,checkIn:$('mIn').value,checkOut:$('mOut').value});
+    if (r && r.ok){ $('modal').style.display='none'; loadMonth(); }
+  }
+  else if (a==='dl'){ download(b.dataset.fmt, b.dataset.scope); }
+});
+$('calEmp').addEventListener('change', loadMonth);
+$('calMonth').addEventListener('change', loadMonth);
+$('repMonth').addEventListener('change', loadReport);
+
+try{ if('serviceWorker' in navigator && location.protocol==='https:') navigator.serviceWorker.register('sw.js').catch(()=>{}); }catch(e){}
+loadHome();
+</script>
+</body>
+</html>
